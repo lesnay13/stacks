@@ -1,0 +1,125 @@
+import java.util.LinkedList;
+import java.util.Queue;
+import java.util.Scanner;
+import java.util.Stack;
+
+public class Main { 
+	
+	private static Stack<String> Mainstack = new Stack<String>();//To store the main sentence
+	private static Stack<String> Redostack = new Stack<String>();//To store the words undo
+	private static Queue<String> Actions = new LinkedList<String>();//To store the actions that will need to be performed
+	private static String array[]; // to store original sentence
+	
+	public static void main(String[] args) 
+	{
+		Scanner in = new Scanner(System.in);//to store user input
+		System.out.print("Please Enter a sentence: ");//Ask user for a sentence
+		String sentence = in.nextLine();//Gets the user inputs
+		array = sentence.split(" ");//Stores the original sentence on an array
+		
+		while(in.hasNext())//Loop to keep the program running while there is an input to read
+		{
+			String temp = in.nextLine();//Reads the next input
+			String[] actQueue = temp.split(" ");//Divides the commands in an array without spaces 
+			Handler(actQueue);//Sends the array to a function to handle the actions
+		}
+	}
+	
+	public static void add(String text)//To add words into the Stack
+	{
+		Mainstack.add(text);//Adds the words into a stack
+		Redostack.clear();//Empty the Redostack
+	}
+	
+	public static void delete()
+	{
+		if(Mainstack.isEmpty() == true)//Checks for stack to not be empty
+		return;
+		
+		else
+			Redostack.add(Mainstack.pop()); //Adds the deleted action from Mainstack into Redostack
+		Redostack.clear();//Empty the Redostack
+	}
+	
+	public static void undo() 
+	{
+		if(Mainstack.isEmpty() == true)//Checks for stack to not be empty
+			return;
+		else
+			Redostack.add(Mainstack.pop()); //Adds the deleted action from Mainstack into Redostack		
+	}
+	
+	public static void redo()
+	{
+		if(Mainstack.isEmpty()  == true)//Checks for stack to not be empty
+			return;
+		else 
+			Mainstack.add(Redostack.pop()); //Adds the deleted action from Redostack into Mainstack	
+	}
+	
+	public static void print()
+	{
+		Stack <String> tempPrint = new Stack <String>();//Creates a temporarily stack for output
+		
+		while(Mainstack.isEmpty() != true)//Checks for stack to not be empty
+		{	
+			String s= Mainstack.pop();//Gets the top value out
+			tempPrint.add(s);//Transfer the value from Mainstack to a temporally stack
+		}
+		
+		System.out.print("Sentence: "); 
+		
+		for(int i =0; i < array.length; i++)// to print the original sentence
+			System.out.print(array[i] + " ");
+		
+		while(tempPrint.isEmpty() != true)
+		{
+			
+			String x = tempPrint.pop();
+			System.out.print(x + " ");//Prints the stack from the bottom
+			
+			Mainstack.add(x);//Restore the contents of the stack to its initial order
+		}
+		
+		System.out.println();
+	}
+	
+	public static void Handler(String [] input)
+	{
+		for(int x= 0; x < input.length; x++)//Add words into the queue
+			Actions.add(input[x]);
+
+		while(Actions.isEmpty() != true)//Evaluates that the queue isn't empty and perform the actions
+		{
+			if(Actions.peek().equals("add"))
+			{
+				Actions.poll();//Will take the action out of the queue
+				add(Actions.poll());//Will take the next action into the add function
+			}
+			else if(Actions.peek().equals("delete"))
+			{
+				Actions.poll();//Will take the action out of the queue
+				delete();//Will perform the action
+			}
+			else if(Actions.peek().equals("undo"))
+			{
+				Actions.poll();//Will take the action out of the queue
+				undo();//Will perform the action
+			}
+			else if(Actions.peek().equals("redo"))
+			{
+				Actions.poll();//Will take the action out of the queue
+				redo();//Will perform the action
+			}
+			else if(Actions.peek().equals("print"))
+			{
+				Actions.poll();//Will take the action out of the queue
+				print();//Will perform the action
+			}
+			else if(Actions.peek().equals("quit"))
+			{
+				System.exit(0);//Terminates the program
+			}
+		}
+	}
+}
